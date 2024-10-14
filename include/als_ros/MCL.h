@@ -57,7 +57,7 @@ private:
     ros::Publisher posePub_, particlesPub_, unknownScanPub_, residualErrorsPub_, reliabilityPub_, reliabilityMarkerPub_;
 
     // server
-    ros::ServiceServer service = n.advertiseService("AlsLocOn", add);
+    ros::ServiceServer locStatusService_;
 
     // tf frames
     std::string laserFrame_, baseLinkFrame_, mapFrame_, odomFrame_;
@@ -368,6 +368,11 @@ public:
         initialPoseSub_ = nh_.subscribe("/initialpose", 1, &MCL::initialPoseCB, this);
         if (useGLPoseSampler_)
             glSampledPosesPub_ = nh_.subscribe(glSampledPosesName_, 1, &MCL::glSampledPosesCB, this);
+        
+        // AlsLocOn server to set tf broadcasting on / off
+        locStatusService_ = nh_.advertiseService("/AlsLocOn", &MCL::setLocStatus, this);
+        ROS_WARN("als_loc status: %d", broadcastTF_);
+        ROS_WARN("AlsLocOn service ready.");
 
         // set publishers
         posePub_ = nh_.advertise<geometry_msgs::PoseStamped>(poseName_, 1);
@@ -480,6 +485,23 @@ public:
 
         isInitialized_ = true;
         ROS_INFO("MCL is ready to perform\n");
+    }
+
+    // based on service client msg AlsLocOn, set broadcastTF_ on / off
+    bool setLocStatus(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+        if (req.data) {
+            broadcastTF_ = true;
+            res.success = true;
+            res.message = "ALS-ROS: set broadcastTF_ to True.";
+            ROS_WARN("ALS-ROS: set broadcastTF_ to True.");
+        }
+        else {
+            broadcastTF_ = false;
+            res.success = false;
+            res.message = "ALS-ROS: set broadcastTF_ to False.";
+            ROS_WARN("ALS-ROS: set broadcastTF_ to False.");
+        }
+        return true;
     }
 
     void updateParticlesByMotionModel(void) {
