@@ -39,6 +39,8 @@
 #include <als_ros/Particle.h>
 #include <als_ros/MAEClassifier.h>
 
+#include <std_srvs/SetBool.h>
+
 namespace als_ros {
 
 class MCL {
@@ -53,6 +55,9 @@ private:
     // publishers
     std::string poseName_, particlesName_, unknownScanName_, residualErrorsName_, reliabilityName_, reliabilityMarkerName_;
     ros::Publisher posePub_, particlesPub_, unknownScanPub_, residualErrorsPub_, reliabilityPub_, reliabilityMarkerPub_;
+
+    // server
+    ros::ServiceServer service = n.advertiseService("AlsLocOn", add);
 
     // tf frames
     std::string laserFrame_, baseLinkFrame_, mapFrame_, odomFrame_;
