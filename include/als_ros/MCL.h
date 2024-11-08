@@ -100,6 +100,8 @@ private:
     sensor_msgs::LaserScan scan_, unknownScan_;
     bool canUpdateScan_;
     std::vector<bool> likelihoodShiftedSteps_;
+    // added here to emphasize laser with few points, otherwise scan with few pts does not take effect.
+    double scanImportanceWeight_;  
 
     // measurement model
     // 0: likelihood field model, 1: beam model, 2: class conditional measurement model
@@ -235,6 +237,7 @@ public:
         deltaTimeSum_(0.0),
         resampleThresholds_({-1.0, -1.0, -1.0, -1.0, -1.0}),
         useOmniDirectionalModel_(false),
+        scanImportanceWeight_(1.0), // added for emphasize few scan pts
         measurementModelType_(0),
         pKnownPrior_(0.5),
         pUnknownPrior_(0.5),
@@ -316,6 +319,7 @@ public:
         nh_.param("use_omni_directional_model", useOmniDirectionalModel_, useOmniDirectionalModel_);
 
         // measurement model
+        nh_.param("scan_importance_weight", scanImportanceWeight_, scanImportanceWeight_); // added for emphasize few scan pts
         nh_.param("measurement_model_type", measurementModelType_, measurementModelType_);
         nh_.param("scan_step", scanStep_, scanStep_);
         nh_.param("z_hit", zHit_, zHit_);
@@ -613,7 +617,8 @@ public:
                 else
                     p = calculateClassConditionalMeasurementModel(sensorPoses[j], range, rangeAngle);
                 double w = particles_[j].getW();
-                w += log(p);
+                // w += log(p); 
+                w += log(p)*scanImportanceWeight_; // added for emphasize few scan pts
                 particles_[j].setW(w);
                 if (j == 0) {
                     max = w;

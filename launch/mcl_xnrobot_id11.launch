@@ -51,6 +51,9 @@
     <arg name="initial_noise_y" default="0.02" />
     <arg name="initial_noise_yaw" default="0.01" />
 
+    <!-- added for emphasize few scan pts -->
+    <arg name="scan_importance_weight" default="10.0" />
+
     <!-- 0: likelihood field model, 1, beam model, 2: class conditional measurement model
          The class conditional measurement model is highly recommended for pose tracking. -->
     <arg name="measurement_model_type" default="2" />
@@ -271,6 +274,9 @@
         <param name="initial_noise_x" value="$(arg initial_noise_x)" type="double" />
         <param name="initial_noise_y" value="$(arg initial_noise_y)" type="double" />
         <param name="initial_noise_yaw" value="$(arg initial_noise_yaw)" type="double" />
+
+        <!-- added for emphasize few scan pts -->
+        <param name="scan_importance_weight" value="$(arg scan_importance_weight)" type="double" />
 
         <param name="particle_num" value="$(arg particle_num)" type="int" />
 
